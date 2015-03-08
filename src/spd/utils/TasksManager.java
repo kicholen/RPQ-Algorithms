@@ -5,7 +5,9 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import spd.algorithms.Carlier;
 import spd.algorithms.Schrage;
+import spd.algorithms.SchragePrmtS;
 import spd.models.Task.TaskModel;
 import spd.models.Task.TaskRComparator;
 
@@ -50,6 +52,21 @@ public class TasksManager {
 		schrageAlgorithm.dispose();
 	}
 	
+	public void sortBySchragePrmtS() {
+		SchragePrmtS schrageAlgorithm = new SchragePrmtS();
+		schrageAlgorithm.setData(_tasksList);
+		schrageAlgorithm.calculate();
+		schrageAlgorithm.dispose();
+	}
+	
+	public void sortByCarlier() {
+		Carlier carlierAlgorithm = new Carlier();
+		carlierAlgorithm.setData(_tasksList);
+		carlierAlgorithm.calculate();
+		
+		//carlierAlgorithm.dispose();
+	}
+	
 	private void parseDataFromFile(List<Integer> list) {
 		Iterator<Integer> listIterator = list.iterator();
 		_tasksCount = listIterator.next();
@@ -67,9 +84,5 @@ public class TasksManager {
 			_tasksList = null;
 		}
 		_tasksList = new ArrayList<TaskModel>();
-	}
-	
-	public List<TaskModel> getTaskVector() {
-		return _tasksList;
 	}
 }

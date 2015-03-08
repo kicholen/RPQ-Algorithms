@@ -17,7 +17,7 @@ public class Main {
 	
 	private void test() {
 		List<String> list = new ArrayList<String>();
-		//list.add("data/in07.txt");
+		list.add("data/in07.txt");
 		list.add("data/in50.txt");
 		list.add("data/in100.txt");
 		list.add("data/in200.txt");
@@ -29,7 +29,9 @@ public class Main {
 			tasksManager.setDataFromFile(fileName);
 			//System.out.println(fileName + ": " + tasksManager.getTasksTime());
 			//tasksManager.sortByR();
-			tasksManager.sortBySchrage();
+			//tasksManager.sortBySchrage();
+			//tasksManager.sortBySchragePrmtS();
+			tasksManager.sortByCarlier();
 			System.out.println(fileName + ": " + tasksManager.getTasksTime());
 			totalTime += tasksManager.getTasksTime();
 		}

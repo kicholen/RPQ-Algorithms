@@ -9,9 +9,9 @@ import spd.models.Task.TaskRComparator;
 
 public class Schrage implements IAlgorithm {
 
-	private List<TaskModel> _list;
-	private PriorityQueue<TaskModel> _tasksN;
-	private PriorityQueue<TaskModel> _tasksG;
+	protected List<TaskModel> _list;
+	protected PriorityQueue<TaskModel> _tasksN;
+	protected PriorityQueue<TaskModel> _tasksG;
 	
 	public Schrage() {
 		
@@ -27,12 +27,11 @@ public class Schrage implements IAlgorithm {
 	}
 
 	@Override
-	public void calculate() {
+	public int calculate() {
 		int currentTime = 0;
 		int totalTime = 0;
 		int k = 0;
 		TaskModel taskE;
-		
 		
 		while (!_tasksG.isEmpty() || !_tasksN.isEmpty()) {
 			while (!_tasksN.isEmpty() && _tasksN.peek().r() <= currentTime) {
@@ -42,6 +41,7 @@ public class Schrage implements IAlgorithm {
 			
 			if (!_tasksG.isEmpty()) {
 				taskE = _tasksG.poll();
+				taskE.setStartTime(currentTime);
 				_list.set(k, taskE);
 				k += 1;
 				currentTime += taskE.p();
@@ -51,6 +51,8 @@ public class Schrage implements IAlgorithm {
 				currentTime = _tasksN.peek().r();
 			}
 		}
+		
+		return totalTime;
 	}
 	
 	public void dispose() {

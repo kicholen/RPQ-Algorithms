@@ -6,5 +6,5 @@ import spd.models.Task.TaskModel;
 
 public interface IAlgorithm {
 	void setData(List<TaskModel> list);
-	void calculate();
+	int calculate();
 }
