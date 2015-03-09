@@ -14,7 +14,6 @@ import spd.models.Task.TaskRComparator;
 public class TasksManager {
 	private List<TaskModel> _tasksList;
 	private int _tasksCount;
-	private int _whatsThatFor;
 	
 	public TasksManager() {
 		reset();
@@ -50,27 +49,29 @@ public class TasksManager {
 		schrageAlgorithm.setData(_tasksList);
 		schrageAlgorithm.calculate();
 		schrageAlgorithm.dispose();
+		schrageAlgorithm = null;
 	}
 	
 	public void sortBySchragePrmtS() {
 		SchragePrmtS schrageAlgorithm = new SchragePrmtS();
 		schrageAlgorithm.setData(_tasksList);
-		schrageAlgorithm.calculate();
+		System.out.println(schrageAlgorithm.calculate());
 		schrageAlgorithm.dispose();
+		schrageAlgorithm = null;
 	}
 	
 	public void sortByCarlier() {
 		Carlier carlierAlgorithm = new Carlier();
 		carlierAlgorithm.setData(_tasksList);
 		carlierAlgorithm.calculate();
-		
-		//carlierAlgorithm.dispose();
+		carlierAlgorithm.dispose();
+		carlierAlgorithm = null;
 	}
 	
 	private void parseDataFromFile(List<Integer> list) {
 		Iterator<Integer> listIterator = list.iterator();
 		_tasksCount = listIterator.next();
-		_whatsThatFor = listIterator.next();
+		listIterator.next();
 		
 		while (listIterator.hasNext()) {
 			TaskModel model = new TaskModel(listIterator.next(), listIterator.next(), listIterator.next());

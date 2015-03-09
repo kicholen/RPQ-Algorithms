@@ -3,11 +3,12 @@ package spd.algorithms;
 import java.util.List;
 import java.util.PriorityQueue;
 
+import spd.models.Disposable;
 import spd.models.Task.TaskModel;
 import spd.models.Task.TaskQComparator;
 import spd.models.Task.TaskRComparator;
 
-public class Schrage implements IAlgorithm {
+public class Schrage implements IAlgorithm, Disposable {
 
 	protected List<TaskModel> _list;
 	protected PriorityQueue<TaskModel> _tasksN;
@@ -22,15 +23,17 @@ public class Schrage implements IAlgorithm {
 		_list = list;
 		
 		_tasksN = new PriorityQueue<TaskModel>(list.size(), new TaskRComparator());
-		_tasksN.addAll(list);
+		for (TaskModel model : list) {
+			_tasksN.add(model.getCopy());
+		}
 		_tasksG = new PriorityQueue<TaskModel>(list.size(), new TaskQComparator());
 	}
 
 	@Override
 	public int calculate() {
+		_list.clear();
 		int currentTime = 0;
 		int totalTime = 0;
-		int k = 0;
 		TaskModel taskE;
 		
 		while (!_tasksG.isEmpty() || !_tasksN.isEmpty()) {
@@ -42,8 +45,7 @@ public class Schrage implements IAlgorithm {
 			if (!_tasksG.isEmpty()) {
 				taskE = _tasksG.poll();
 				taskE.setStartTime(currentTime);
-				_list.set(k, taskE);
-				k += 1;
+				_list.add(taskE);
 				currentTime += taskE.p();
 				totalTime = Math.max(totalTime, currentTime + taskE.q());
 			}
@@ -55,6 +57,7 @@ public class Schrage implements IAlgorithm {
 		return totalTime;
 	}
 	
+	@Override
 	public void dispose() {
 		if (_tasksN != null) {
 			_tasksN.clear();

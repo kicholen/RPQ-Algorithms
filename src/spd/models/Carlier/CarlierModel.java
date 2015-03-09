@@ -1,20 +1,23 @@
 package spd.models.Carlier;
 
 import java.awt.Point;
+import java.util.ArrayList;
 import java.util.List;
 
+import spd.models.Copyable;
+import spd.models.Disposable;
 import spd.models.Task.TaskModel;
 
-public class CarlierModel implements Comparable<CarlierModel> {
+public class CarlierModel implements Comparable<CarlierModel>, Copyable<CarlierModel>, Disposable {
 	private List<TaskModel> _tasksList;
 	private int _totalTime;
-	private int _loweBound;
+	private int _lowerBound;
 	private int _lowerBoundFixed;
 	private Point _blockRange;
 	private int _referenceTaskIndex;
 	
 	public CarlierModel() {
-		
+		_blockRange = new Point(0, 0);
 	}
 	
 	public void setTasksList(List<TaskModel> list) {
@@ -33,6 +36,10 @@ public class CarlierModel implements Comparable<CarlierModel> {
 		else {
 			return getLowerBoundFixed() < model.getLowerBoundFixed() ? 1 : -1;			
 		}
+	}
+	
+	public int getLowerBound() {
+		return _lowerBound;
 	}
 	
 	public void setReferenceTaskIndex(int value) {
@@ -65,5 +72,42 @@ public class CarlierModel implements Comparable<CarlierModel> {
 	
 	public int getTotalTime() {
 		return _totalTime;
+	}
+
+	@Override
+	public CarlierModel getCopy() {
+		CarlierModel copy = createNewForCopy();
+		copy.fromObject(this);
+		return copy;
+	}
+
+	@Override
+	public CarlierModel createNewForCopy() {
+		return new CarlierModel();
+	}
+
+	@Override
+	public void fromObject(CarlierModel object) {
+		if (_tasksList == null) {
+			_tasksList = new ArrayList<TaskModel>();
+		}
+		for (TaskModel model : object.getTasksList()) {
+			_tasksList.add(model.getCopy());
+		}
+		_totalTime = object.getTotalTime();
+		_lowerBound = object.getLowerBound();
+		_lowerBoundFixed = object.getLowerBoundFixed();
+		_blockRange = new Point(object.getBlockRange().x, object.getBlockRange().y);
+		_referenceTaskIndex = object.getReferenceTaskIndex();
+	}
+
+	@Override
+	public void dispose() {
+		if (_tasksList != null) {
+			_tasksList.clear();
+			_tasksList = null;
+		}
+		
+		_blockRange = null;
 	}
 }

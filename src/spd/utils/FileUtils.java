@@ -22,9 +22,6 @@ public class FileUtils {
 			}
 			
 			scanner.close();
-	        //for (Integer number : list) {
-	        //	System.out.print(number + "\n");
-			//}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {

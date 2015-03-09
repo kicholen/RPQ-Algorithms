@@ -1,18 +1,17 @@
 package spd.algorithms;
 
 import java.awt.Point;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.PriorityQueue;
 
+import spd.models.Disposable;
 import spd.models.Carlier.CarlierModel;
 import spd.models.Task.TaskModel;
-import spd.models.Task.TaskQComparator;
 
-public class Carlier implements IAlgorithm {
+public class Carlier implements IAlgorithm, Disposable {
 	private List<TaskModel> _list;
-	//private List<TaskModel> _currentList;
-	//private List<TaskModel> _optimalList;
+	private CarlierModel _model;
+	private Schrage _schrage;
+	private SchragePrmtS _schragePrmts;
 	
 	public Carlier() {
 		
@@ -21,13 +20,65 @@ public class Carlier implements IAlgorithm {
 	@Override
 	public void setData(List<TaskModel> list) {
 		_list = list;
-		//copyList(_originalList, _currentList);
+		_model = new CarlierModel();
+		_model.setTasksList(list);
 	}
 
-	//http://dominik.zelazny.staff.iiar.pwr.wroc.pl/materialy/Algorytm_Carlier.pdf
-	//http://mariusz.makuchowski.staff.iiar.pwr.wroc.pl/download/courses/sterowanie.procesami.dyskretnymi/lab.instrukcje/lab05.carlier/literatura/algorytm.C.%5bMBwZSZ%5d.pdf
-	//http://mariusz.makuchowski.staff.iiar.pwr.wroc.pl/download/courses/sterowanie.procesami.dyskretnymi/lab.instrukcje/lab04.schrage/literatura/
-	//https://github.com/sparkzi/Carlier/blob/master/CarlierProgram/CarlierProgram.cpp
+	@Override
+	public int calculate() {
+		CarlierModel carlier = new CarlierModel();
+		carlier = _model.getCopy();
+		return calculateCarlier(carlier, Integer.MAX_VALUE);
+	}
+	
+	public int calculateCarlier(CarlierModel carlier, int upperBoundValue) {
+		int currentUpperBoundValue = getSchrageTotalTime(carlier.getTasksList());
+		if (currentUpperBoundValue < upperBoundValue) {
+			upperBoundValue = currentUpperBoundValue;
+			_list.clear();
+			for (TaskModel model : carlier.getTasksList()) {
+				_list.add(model.getCopy());
+			}
+		}
+		carlier.setBlockRange(findBlockRange(carlier.getTasksList()));
+		carlier.setReferenceTaskIndex(findReferenceTaskIndex(carlier.getTasksList(), carlier.getBlockRange()));
+		
+		if (carlier.getReferenceTaskIndex() != -1) {
+			int minRInBlock = findMinRInRange(carlier.getTasksList(), carlier.getBlockRange());
+			int minQInBlock = findMinQInRange(carlier.getTasksList(), carlier.getBlockRange());
+			int sumPInBlock = getPSumInRange(carlier.getTasksList(),  carlier.getBlockRange());
+			int oldR = carlier.getTasksList().get(carlier.getReferenceTaskIndex()).r();
+			carlier.getTasksList().get(carlier.getReferenceTaskIndex()).setR(Math.max(carlier.getTasksList().get(carlier.getReferenceTaskIndex()).r(), minRInBlock + sumPInBlock));
+			
+			int lowerBoundValue = getSchragePrmtSTotalTime(carlier.getTasksList());
+			if (lowerBoundValue < upperBoundValue) {
+				CarlierModel copiedCarlier = carlier.getCopy();
+				calculateCarlier(copiedCarlier.getCopy(), upperBoundValue);
+				copiedCarlier.dispose();
+				copiedCarlier = null;
+				carlier.getTasksList().get(carlier.getReferenceTaskIndex()).setR(oldR);
+			}
+			
+			minQInBlock = findMinQInRange(carlier.getTasksList(), carlier.getBlockRange());
+			sumPInBlock = getPSumInRange(carlier.getTasksList(),  carlier.getBlockRange());
+			int oldQ = carlier.getTasksList().get(carlier.getReferenceTaskIndex()).q();
+			carlier.getTasksList().get(carlier.getReferenceTaskIndex()).setQ(Math.max(carlier.getTasksList().get(carlier.getReferenceTaskIndex()).q(), minQInBlock + sumPInBlock));
+			lowerBoundValue = getSchragePrmtSTotalTime(carlier.getTasksList());
+			if (lowerBoundValue < upperBoundValue) {
+				CarlierModel copiedCarlier = carlier.getCopy();
+				calculateCarlier(copiedCarlier, upperBoundValue);
+				copiedCarlier.dispose();
+				copiedCarlier = null;
+				carlier.getTasksList().get(carlier.getReferenceTaskIndex()).setQ(oldQ);
+			}
+		}
+		
+		return upperBoundValue;
+	}
+	
+	/*http://dominik.zelazny.staff.iiar.pwr.wroc.pl/materialy/Algorytm_Carlier.pdf
+	http://mariusz.makuchowski.staff.iiar.pwr.wroc.pl/download/courses/sterowanie.procesami.dyskretnymi/lab.instrukcje/lab05.carlier/literatura/algorytm.C.%5bMBwZSZ%5d.pdf
+	http://mariusz.makuchowski.staff.iiar.pwr.wroc.pl/download/courses/sterowanie.procesami.dyskretnymi/lab.instrukcje/lab04.schrage/literatura/
 	@Override
 	public int calculate() {
 		CarlierModel startCarlier = new CarlierModel();
@@ -35,6 +86,7 @@ public class Carlier implements IAlgorithm {
 		startCarlier.setTasksList(_list);
 		int upperBoundValue = getSchrageTotalTime(startCarlier.getTasksList());//Integer.MAX_VALUE;//getSchrageTotalTime(_list);
 		startCarlier.setTotalTime(upperBoundValue);
+		startCarlier.setLowerBoundFixed(1);
 		int lowerBoundValue = getSchragePrmtSTotalTime(startCarlier.getTasksList());
 		//int targetValue = getSchrageTotalTime();
 		
@@ -50,7 +102,7 @@ public class Carlier implements IAlgorithm {
 				
 				if (currentCarlier.getTotalTime() < upperBoundValue) {
 					upperBoundValue = currentCarlier.getTotalTime();
-					optimalCarlier = currentCarlier;
+					optimalCarlier = currentCarlier.getCopy();// =currentCarlier;//
 				}
 				
 				currentCarlier.setBlockRange(findBlockRange(currentCarlier.getTasksList()));
@@ -58,73 +110,63 @@ public class Carlier implements IAlgorithm {
 				
 				if (currentCarlier.getReferenceTaskIndex() != -1) {
 					// elimination tests
-					eliminationTests(currentCarlier, upperBoundValue);
-					potomek1 = potomek2 = currentCarlier;
+					//eliminationTests(currentCarlier, upperBoundValue);
+					//potomek1 = currentCarlier.getCopy();
+					//potomek2 = currentCarlier.getCopy();
+					potomek1 = currentCarlier.getCopy();
+					potomek2 = currentCarlier.getCopy();
 					//copyList(currentCarlier.getTasksList(), potomek1.getTasksList());
 					//copyList(currentCarlier.getTasksList(), potomek2.getTasksList());
 					
 					int minRInBlock = findMinRInRange(potomek1.getTasksList(), potomek1.getBlockRange());
-					int pSumInBlock = getPSumInRange(potomek1.getTasksList(),  potomek1.getBlockRange());
-					potomek1.getTasksList().get(potomek1.getReferenceTaskIndex()).setR(minRInBlock + pSumInBlock);
+					int sumPInBlock = getPSumInRange(potomek1.getTasksList(),  potomek1.getBlockRange());
+					potomek1.getTasksList().get(potomek1.getReferenceTaskIndex()).setR(minRInBlock + sumPInBlock);
 					
 					int minQInBlock = findMinQInRange(potomek2.getTasksList(), potomek2.getBlockRange());
-					pSumInBlock = getPSumInRange(potomek2.getTasksList(),  potomek2.getBlockRange());
-					potomek2.getTasksList().get(potomek2.getReferenceTaskIndex()).setQ(minQInBlock + pSumInBlock);
+					sumPInBlock = getPSumInRange(potomek2.getTasksList(),  potomek2.getBlockRange());
+					potomek2.getTasksList().get(potomek2.getReferenceTaskIndex()).setQ(minQInBlock + sumPInBlock);
 					
 					potomek1.setLowerBoundFixed(getLowerBoundFixed(potomek1.getTasksList(), potomek1.getReferenceTaskIndex(), potomek1.getBlockRange()));
-					potomek2.setLowerBoundFixed(getLowerBoundFixed(potomek2.getTasksList(), potomek1.getReferenceTaskIndex(), potomek2.getBlockRange()));
+					potomek2.setLowerBoundFixed(getLowerBoundFixed(potomek2.getTasksList(), potomek2.getReferenceTaskIndex(), potomek2.getBlockRange()));
 
 					carlierHeap.add(potomek1);
 					carlierHeap.add(potomek2);
 				}
+				
 			}
 		}
 		
 		//_list = optimalCarlier.getTasksList();
-		System.out.println(optimalCarlier.getTasksList().size());
 		//copyList(optimalCarlier.getTasksList(), _list);
 		_list = optimalCarlier.getTasksList();
-		System.out.println(optimalCarlier.getTasksList().size());
-		System.out.println(_list.size());
 		return 0;
-	}
-	
-	private void copyList(List<TaskModel> source, List<TaskModel> destination) {
-		if (destination != null) {
-			destination.clear();
-		}
-		else {
-			destination = new ArrayList<TaskModel>();
-		}
-		destination.addAll(source);
-	}
+	}*/
 	
 	private int getSchrageTotalTime(List<TaskModel> list) {
-		Schrage schrageAlgorithm = new Schrage();
-		schrageAlgorithm.setData(list);
-		int totalTime = schrageAlgorithm.calculate();
-		schrageAlgorithm.dispose();
-		schrageAlgorithm = null;
+		if (_schrage == null) {
+			_schrage = new Schrage();
+		}
+		_schrage.setData(list);
 		
-		return totalTime;
+		return _schrage.calculate();
 	}
 	
 	private int getSchragePrmtSTotalTime(List<TaskModel> list) {
-		SchragePrmtS schrageAlgorithm = new SchragePrmtS();
-		schrageAlgorithm.setData(list);
-		int totalTime = schrageAlgorithm.calculate();
-		schrageAlgorithm.dispose();
-		schrageAlgorithm = null;
+		if (_schragePrmts == null) {
+			_schragePrmts= new SchragePrmtS();
+		}
+		_schragePrmts.setData(list);
 		
-		return totalTime;
+		return _schragePrmts.calculate();
 	}
 	
+	@SuppressWarnings("unused")
 	private void eliminationTests(CarlierModel model, int upperBoundValue) {
 		List<TaskModel> list = model.getTasksList();
-		int heightKula = getHeight(list, new Point(model.getReferenceTaskIndex() + 1, model.getBlockRange().y));
+		int h = getH(list, new Point(model.getReferenceTaskIndex() + 1, model.getBlockRange().y));
 		
 		for (int index = 0; index < model.getTasksList().size(); index++) {
-			if ((index < model.getBlockRange().x || index > model.getBlockRange().y) && list.get(index).p() > upperBoundValue - heightKula) {
+			if ((index < model.getBlockRange().x || index > model.getBlockRange().y) && list.get(index).p() > upperBoundValue - h) {
 				if (list.get(index).r() + list.get(index).p() + list.get(model.getBlockRange().y).q() + getPSumInRange(list, new Point(model.getReferenceTaskIndex() + 1, model.getBlockRange().y)) >= upperBoundValue) { //c+1,b
 					list.get(index).setR(Math.max(list.get(index).r(), findMinRInRange(list, new Point(model.getReferenceTaskIndex() + 1, model.getBlockRange().y)) + getPSumInRange(list, new Point(model.getReferenceTaskIndex() + 1, model.getBlockRange().y))));
 				}
@@ -153,11 +195,12 @@ public class Carlier implements IAlgorithm {
 		return value;
 	}
 	
+	@SuppressWarnings("unused")
 	private int getLowerBoundFixed(List<TaskModel> list, int referenceTaskIndex, Point blockRange) {
-		return Math.max(getHeight(list, new Point(referenceTaskIndex + 1, blockRange.y)), getHeight(list, new Point(referenceTaskIndex, blockRange.y)));
+		return Math.max(getH(list, new Point(referenceTaskIndex + 1, blockRange.y)), getH(list, new Point(referenceTaskIndex, blockRange.y)));
 	}
 	
-	private int getHeight(List<TaskModel> list, Point range) {
+	private int getH(List<TaskModel> list, Point range) {
 		return findMinRInRange(list, range) + findMinQInRange(list, range) + getPSumInRange(list, range);
 	}
 	
@@ -197,5 +240,18 @@ public class Carlier implements IAlgorithm {
 		}
 		
 		return range;
+	}
+
+	@Override
+	public void dispose() {
+		_model = null;
+		if (_schrage != null) {
+			_schrage.dispose();
+			_schrage = null;
+		}
+		if (_schragePrmts != null) {
+			_schragePrmts.dispose();
+			_schragePrmts = null;
+		}
 	}
 }
