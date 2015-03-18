@@ -3,17 +3,17 @@ package spd.models.Task;
 import spd.models.Copyable;
 
 
-public class TaskModel implements Copyable<TaskModel> {
+public class TaskRPQModel implements Copyable<TaskRPQModel> {
 	private int _r;
 	private int _p;
 	private int _q;
 	private int _startTime;
 	
-	public TaskModel() {
+	public TaskRPQModel() {
 		
 	}
 	
-	public TaskModel(int r, int p, int q) {
+	public TaskRPQModel(int r, int p, int q) {
 		_r = r;
 		_p = p;
 		_q = q;
@@ -61,19 +61,19 @@ public class TaskModel implements Copyable<TaskModel> {
 	}
 
 	@Override
-	public TaskModel getCopy() {
-		TaskModel copy = createNewForCopy();
+	public TaskRPQModel getCopy() {
+		TaskRPQModel copy = createNewForCopy();
 		copy.fromObject(this);
 		return copy;
 	}
 
 	@Override
-	public TaskModel createNewForCopy() {
-		return new TaskModel();
+	public TaskRPQModel createNewForCopy() {
+		return new TaskRPQModel();
 	}
 	
 	@Override
-	public void fromObject(TaskModel object) {
+	public void fromObject(TaskRPQModel object) {
 		_r = object.r();
 		_p = object.p();
 		_q = object.q();

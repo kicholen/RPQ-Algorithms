@@ -5,10 +5,10 @@ import java.util.List;
 
 import spd.models.Disposable;
 import spd.models.Carlier.CarlierModel;
-import spd.models.Task.TaskModel;
+import spd.models.Task.TaskRPQModel;
 
 public class Carlier implements IAlgorithm, Disposable {
-	private List<TaskModel> _list;
+	private List<TaskRPQModel> _list;
 	private CarlierModel _model;
 	private Schrage _schrage;
 	private SchragePrmtS _schragePrmts;
@@ -17,8 +17,7 @@ public class Carlier implements IAlgorithm, Disposable {
 		
 	}
 	
-	@Override
-	public void setData(List<TaskModel> list) {
+	public void setData(List<TaskRPQModel> list) {
 		_list = list;
 		_model = new CarlierModel();
 		_model.setTasksList(list);
@@ -36,7 +35,7 @@ public class Carlier implements IAlgorithm, Disposable {
 		if (currentUpperBoundValue < upperBoundValue) {
 			upperBoundValue = currentUpperBoundValue;
 			_list.clear();
-			for (TaskModel model : carlier.getTasksList()) {
+			for (TaskRPQModel model : carlier.getTasksList()) {
 				_list.add(model.getCopy());
 			}
 		}
@@ -142,7 +141,7 @@ public class Carlier implements IAlgorithm, Disposable {
 		return 0;
 	}*/
 	
-	private int getSchrageTotalTime(List<TaskModel> list) {
+	private int getSchrageTotalTime(List<TaskRPQModel> list) {
 		if (_schrage == null) {
 			_schrage = new Schrage();
 		}
@@ -151,7 +150,7 @@ public class Carlier implements IAlgorithm, Disposable {
 		return _schrage.calculate();
 	}
 	
-	private int getSchragePrmtSTotalTime(List<TaskModel> list) {
+	private int getSchragePrmtSTotalTime(List<TaskRPQModel> list) {
 		if (_schragePrmts == null) {
 			_schragePrmts= new SchragePrmtS();
 		}
@@ -162,7 +161,7 @@ public class Carlier implements IAlgorithm, Disposable {
 	
 	@SuppressWarnings("unused")
 	private void eliminationTests(CarlierModel model, int upperBoundValue) {
-		List<TaskModel> list = model.getTasksList();
+		List<TaskRPQModel> list = model.getTasksList();
 		int h = getH(list, new Point(model.getReferenceTaskIndex() + 1, model.getBlockRange().y));
 		
 		for (int index = 0; index < model.getTasksList().size(); index++) {
@@ -177,7 +176,7 @@ public class Carlier implements IAlgorithm, Disposable {
 		}
 	}
 	
-	private int findMinRInRange(List<TaskModel> list, Point blockRange) {
+	private int findMinRInRange(List<TaskRPQModel> list, Point blockRange) {
 		int value = list.get(blockRange.x).r();
 		for (int index = blockRange.x; index <= blockRange.y; index++) {
 			value = Math.min(value, list.get(index).r());
@@ -186,7 +185,7 @@ public class Carlier implements IAlgorithm, Disposable {
 		return value;
 	}
 	
-	private int findMinQInRange(List<TaskModel> list, Point blockRange) {
+	private int findMinQInRange(List<TaskRPQModel> list, Point blockRange) {
 		int value = list.get(blockRange.x).q();
 		for (int index = blockRange.x; index <= blockRange.y; index++) {
 			value = Math.min(value, list.get(index).q());
@@ -196,15 +195,15 @@ public class Carlier implements IAlgorithm, Disposable {
 	}
 	
 	@SuppressWarnings("unused")
-	private int getLowerBoundFixed(List<TaskModel> list, int referenceTaskIndex, Point blockRange) {
+	private int getLowerBoundFixed(List<TaskRPQModel> list, int referenceTaskIndex, Point blockRange) {
 		return Math.max(getH(list, new Point(referenceTaskIndex + 1, blockRange.y)), getH(list, new Point(referenceTaskIndex, blockRange.y)));
 	}
 	
-	private int getH(List<TaskModel> list, Point range) {
+	private int getH(List<TaskRPQModel> list, Point range) {
 		return findMinRInRange(list, range) + findMinQInRange(list, range) + getPSumInRange(list, range);
 	}
 	
-	private int getPSumInRange(List<TaskModel> list, Point blockRange) {
+	private int getPSumInRange(List<TaskRPQModel> list, Point blockRange) {
 		int value = 0;
 		for (int index = blockRange.x; index <= blockRange.y; index++) {
 			value += list.get(index).p();
@@ -213,7 +212,7 @@ public class Carlier implements IAlgorithm, Disposable {
 		return value;
 	}
 	
-	private int findReferenceTaskIndex(List<TaskModel> list, Point blockRange) {
+	private int findReferenceTaskIndex(List<TaskRPQModel> list, Point blockRange) {
 		for (int index = blockRange.y - 1; index >= blockRange.x; index--) {
 			if (list.get(index).q() < list.get(blockRange.y).q()) {
 				return index;
@@ -222,7 +221,7 @@ public class Carlier implements IAlgorithm, Disposable {
 		return -1;
 	}
 	
-	private Point findBlockRange(List<TaskModel> list) {
+	private Point findBlockRange(List<TaskRPQModel> list) {
 		Point range = new Point();
 		int maxTime = 0;
 		

@@ -6,10 +6,10 @@ import java.util.List;
 
 import spd.models.Copyable;
 import spd.models.Disposable;
-import spd.models.Task.TaskModel;
+import spd.models.Task.TaskRPQModel;
 
 public class CarlierModel implements Comparable<CarlierModel>, Copyable<CarlierModel>, Disposable {
-	private List<TaskModel> _tasksList;
+	private List<TaskRPQModel> _tasksList;
 	private int _totalTime;
 	private int _lowerBound;
 	private int _lowerBoundFixed;
@@ -20,11 +20,11 @@ public class CarlierModel implements Comparable<CarlierModel>, Copyable<CarlierM
 		_blockRange = new Point(0, 0);
 	}
 	
-	public void setTasksList(List<TaskModel> list) {
+	public void setTasksList(List<TaskRPQModel> list) {
 		_tasksList = list;
 	}
 	
-	public List<TaskModel> getTasksList() {
+	public List<TaskRPQModel> getTasksList() {
 		return _tasksList;
 	}
 
@@ -89,9 +89,9 @@ public class CarlierModel implements Comparable<CarlierModel>, Copyable<CarlierM
 	@Override
 	public void fromObject(CarlierModel object) {
 		if (_tasksList == null) {
-			_tasksList = new ArrayList<TaskModel>();
+			_tasksList = new ArrayList<TaskRPQModel>();
 		}
-		for (TaskModel model : object.getTasksList()) {
+		for (TaskRPQModel model : object.getTasksList()) {
 			_tasksList.add(model.getCopy());
 		}
 		_totalTime = object.getTotalTime();

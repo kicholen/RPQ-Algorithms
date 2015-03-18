@@ -4,29 +4,28 @@ import java.util.List;
 import java.util.PriorityQueue;
 
 import spd.models.Disposable;
-import spd.models.Task.TaskModel;
+import spd.models.Task.TaskRPQModel;
 import spd.models.Task.TaskQComparator;
 import spd.models.Task.TaskRComparator;
 
 public class Schrage implements IAlgorithm, Disposable {
 
-	protected List<TaskModel> _list;
-	protected PriorityQueue<TaskModel> _tasksN;
-	protected PriorityQueue<TaskModel> _tasksG;
+	protected List<TaskRPQModel> _list;
+	protected PriorityQueue<TaskRPQModel> _tasksN;
+	protected PriorityQueue<TaskRPQModel> _tasksG;
 	
 	public Schrage() {
 		
 	}
 
-	@Override
-	public void setData(List<TaskModel> list) {
+	public void setData(List<TaskRPQModel> list) {
 		_list = list;
 		
-		_tasksN = new PriorityQueue<TaskModel>(list.size(), new TaskRComparator());
-		for (TaskModel model : list) {
+		_tasksN = new PriorityQueue<TaskRPQModel>(list.size(), new TaskRComparator());
+		for (TaskRPQModel model : list) {
 			_tasksN.add(model.getCopy());
 		}
-		_tasksG = new PriorityQueue<TaskModel>(list.size(), new TaskQComparator());
+		_tasksG = new PriorityQueue<TaskRPQModel>(list.size(), new TaskQComparator());
 	}
 
 	@Override
@@ -34,7 +33,7 @@ public class Schrage implements IAlgorithm, Disposable {
 		_list.clear();
 		int currentTime = 0;
 		int totalTime = 0;
-		TaskModel taskE;
+		TaskRPQModel taskE;
 		
 		while (!_tasksG.isEmpty() || !_tasksN.isEmpty()) {
 			while (!_tasksN.isEmpty() && _tasksN.peek().r() <= currentTime) {

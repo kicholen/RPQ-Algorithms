@@ -1,6 +1,6 @@
 package spd.algorithms;
 
-import spd.models.Task.TaskModel;
+import spd.models.Task.TaskRPQModel;
 
 public class SchragePrmtS extends Schrage {
 	private int _totalTime;
@@ -19,8 +19,8 @@ public class SchragePrmtS extends Schrage {
 	public int calculate() {
 		int currentTime = 0;
 		
-		TaskModel taskE;
-		TaskModel taskL = new TaskModel(0, 0, Integer.MAX_VALUE);
+		TaskRPQModel taskE;
+		TaskRPQModel taskL = new TaskRPQModel(0, 0, Integer.MAX_VALUE);
 		
 		while (!_tasksG.isEmpty() || !_tasksN.isEmpty()) {
 			while (!_tasksN.isEmpty() && _tasksN.peek().r() <= currentTime) {

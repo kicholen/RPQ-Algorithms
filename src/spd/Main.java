@@ -3,36 +3,65 @@ package spd;
 import java.util.ArrayList;
 import java.util.List;
 
+import spd.utils.AlgorithmTypes;
 import spd.utils.TasksManager;
 
 public class Main {
 	private final static String R_ALGORITHM = "R";
 	private final static String SCHRAGE_ALGORITHM = "SCHRAGE";
 	private final static String CARLIER_ALGORITHM = "CARLIER";
+	private final static String WITI_ALGORITHM = "WITI";
+	
+	private static TasksManager _tasksManager;
 	
 	public static void main(String[] args) {
 		Main main = new Main();
-		
-		main.calculate(R_ALGORITHM, true);
-		main.calculate(SCHRAGE_ALGORITHM, true);
-		main.calculate(CARLIER_ALGORITHM, true);
+		_tasksManager = new TasksManager();
+		/*
+		main.calculate(R_ALGORITHM, AlgorithmTypes.RPQ, true);
+		main.calculate(SCHRAGE_ALGORITHM, AlgorithmTypes.RPQ, true);
+		main.calculate(CARLIER_ALGORITHM, AlgorithmTypes.RPQ, true);
+		*/
+		main.calculate(WITI_ALGORITHM, AlgorithmTypes.WITI, true);
+	}
+
+	
+	
+	private void calculate(String algorithmType, AlgorithmTypes type, Boolean shouldPrintResult) {
+		_tasksManager.setAlgorithmType(type);
+		List<String> list = new ArrayList<String>();
+		switch (type) {
+		case RPQ:
+			list.add("data/in50.txt");
+			list.add("data/in100.txt");
+			list.add("data/in200.txt");
+			break;
+		case WITI:
+			list.add("data/witi/data10.txt");
+			/*list.add("data/witi/data11.txt");
+			list.add("data/witi/data12.txt");
+			list.add("data/witi/data13.txt");
+			list.add("data/witi/data14.txt");
+			list.add("data/witi/data15.txt");
+			list.add("data/witi/data16.txt");
+			list.add("data/witi/data17.txt");
+			list.add("data/witi/data18.txt");
+			list.add("data/witi/data19.txt");
+			list.add("data/witi/data20.txt");*/
+			break;
+		}
+		calculate(list, algorithmType, shouldPrintResult);
 	}
 	
-	private void calculate(String algorithmType, Boolean shouldPrintResult) {
-		List<String> list = new ArrayList<String>();
-		list.add("data/in50.txt");
-		list.add("data/in100.txt");
-		list.add("data/in200.txt");
-		
-		TasksManager tasksManager = new TasksManager();
+	private void calculate(List<String> list, String algorithmType, Boolean shouldPrintResult) {
 		String algorithmResults = algorithmType + " algorithm:\n";
 		
 		int totalTime = 0;
 		for (String fileName : list) {
-			tasksManager.setDataFromFile(fileName);
-			calculateUsingAlgorithmType(tasksManager, algorithmType);
-			totalTime += tasksManager.getTasksTime();
-			algorithmResults += fileName + ": " + tasksManager.getTasksTime() + "\n";
+			_tasksManager.setDataFromFile(fileName);
+			calculateUsingAlgorithmType(algorithmType);
+			totalTime += _tasksManager.getTasksTime();
+			algorithmResults += fileName + ": " + _tasksManager.getTasksTime() + "\n";
 		}
 		
 		algorithmResults += "total time: " + totalTime + "\n\n";
@@ -42,16 +71,19 @@ public class Main {
 		}
 	}
 	
-	private void calculateUsingAlgorithmType(TasksManager tasksManager, String type) {
+	private void calculateUsingAlgorithmType(String type) {
 		switch (type) {
 		case R_ALGORITHM:
-			tasksManager.sortByR();
+			_tasksManager.sortByR();
 			break;
 		case SCHRAGE_ALGORITHM:
-			tasksManager.sortBySchrage();
+			_tasksManager.sortBySchrage();
 			break;
 		case CARLIER_ALGORITHM:
-			tasksManager.sortByCarlier();
+			_tasksManager.sortByCarlier();
+			break;
+		case WITI_ALGORITHM:
+			_tasksManager.sortByWiti();
 			break;
 		default:
 			System.out.println("Wrong algorithm type: " + type);
