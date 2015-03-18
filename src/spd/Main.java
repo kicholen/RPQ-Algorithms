@@ -11,6 +11,8 @@ public class Main {
 	private final static String SCHRAGE_ALGORITHM = "SCHRAGE";
 	private final static String CARLIER_ALGORITHM = "CARLIER";
 	private final static String WITI_ALGORITHM = "WITI";
+	private final static String INSA_ALGORITHM = "INSA";
+	private final static String NEH_ALGORITHM = "NEH";
 	
 	private static TasksManager _tasksManager;
 	
@@ -21,8 +23,11 @@ public class Main {
 		main.calculate(R_ALGORITHM, AlgorithmTypes.RPQ, true);
 		main.calculate(SCHRAGE_ALGORITHM, AlgorithmTypes.RPQ, true);
 		main.calculate(CARLIER_ALGORITHM, AlgorithmTypes.RPQ, true);
-		*/
+		
 		main.calculate(WITI_ALGORITHM, AlgorithmTypes.WITI, true);
+		*/
+		
+		main.calculate(NEH_ALGORITHM, AlgorithmTypes.NEH, true);
 	}
 
 	
@@ -49,8 +54,31 @@ public class Main {
 			list.add("data/witi/data19.txt");
 			list.add("data/witi/data20.txt");*/
 			break;
+		case INSA:
+			
+			break;
+		case NEH:
+			for (int i = 1; i <= 10; i++) {
+				list.add(getFormattedNehString(i));
+			}
+			
+			break;
 		}
 		calculate(list, algorithmType, shouldPrintResult);
+	}
+	
+	private String getFormattedNehString(int i) {
+		String value = "";
+		if (i <= 9) {
+			value = "00" + i;
+		}
+		else if (i <= 99) {
+			value = "0" + i;
+		}
+		else {
+			value += i;
+		}
+		return "data/neh/data" + value + ".txt";
 	}
 	
 	private void calculate(List<String> list, String algorithmType, Boolean shouldPrintResult) {
@@ -84,6 +112,12 @@ public class Main {
 			break;
 		case WITI_ALGORITHM:
 			_tasksManager.sortByWiti();
+			break;
+		case NEH_ALGORITHM:
+			_tasksManager.sortByNeh();
+			break;
+		case INSA_ALGORITHM:
+			//_tasksManager.sortByWiti();
 			break;
 		default:
 			System.out.println("Wrong algorithm type: " + type);

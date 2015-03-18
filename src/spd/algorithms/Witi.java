@@ -1,14 +1,10 @@
 package spd.algorithms;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Vector;
 
 import spd.models.Disposable;
-import spd.models.Task.TaskQComparator;
-import spd.models.Task.TaskRPQModel;
-import spd.models.Task.TaskWitiComparator;
 import spd.models.Task.TaskWitiModel;
 
 public class Witi implements IAlgorithm, Disposable {
@@ -25,26 +21,9 @@ public class Witi implements IAlgorithm, Disposable {
 		for (int i = 0; i < _stepsAmount; i++) {
 			_permutationVector.add(i, new Permutation(0,0));
 		}
-		
-		/*_priorityQueue = new PriorityQueue<TaskWitiModel>(list.size(), new TaskWitiComparator());
-		for (TaskWitiModel model : _list) {
-			_priorityQueue.add(new TaskWitiModel(model.getIndex(), model.getExecutionTime(), model.getWeight(), model.getDeadlineTime()));
-		}
-		while(!_priorityQueue.isEmpty()) {
-			System.out.print(_priorityQueue.poll().getIndex() + " ");
-		}
-		//for (TaskWitiModel value : _priorityQueue) {
-		//}
-		System.out.print("\n");*/
 	}
 	
 	// http://dominik.zelazny.staff.iiar.pwr.wroc.pl/materialy/Algorytm_programowania_dynamicznego_-_wiTi.pdf
-	
-	// http://staff.iiar.pwr.wroc.pl/wojciech.bozejko/papers/2009/Automatyka_2009_2.pdf - insa
-	// http://www.ijceronline.com/papers/Vol2_issue6/R0260950100.pdf - neh
-	// http://www.ioz.pwr.wroc.pl/pracownicy/kuchta/Marek%20Sobolewski_FlowShop.pdf - neh
-	
-	// http://www.ptzp.org.pl/files/konferencje/kzz/artyk_pdf_2013/p051.pdf
 	public int calculate() {
 		int tardinessMin = Integer.MAX_VALUE;
 		int tardiness = 0;
@@ -61,8 +40,8 @@ public class Witi implements IAlgorithm, Disposable {
 				power = (int) Math.pow(2, j);
 				tardiness = 0;
 				currentTime = countTime(i);
-				int asd = i & power;
-				if (asd > 0) {
+				int isInside = i & power;
+				if (isInside > 0) {
 					if (i - power > 0) {
 						tardiness += _permutationVector.get(i - power - 1).getTardiness();
 					}
@@ -109,8 +88,8 @@ public class Witi implements IAlgorithm, Disposable {
 		int taskIndex;
 		for (int i = 0; i <= Math.log(index) / Math.log(2); i++) {
 			taskIndex = 1 << i;
-			int asd = index & taskIndex;
-			if (asd > 0) {
+			int isInside = index & taskIndex;
+			if (isInside > 0) {
 				time += _list.get(i).getExecutionTime();
 			}
 		}

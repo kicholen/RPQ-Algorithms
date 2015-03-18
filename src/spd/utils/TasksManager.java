@@ -4,11 +4,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Vector;
 
 import spd.algorithms.Carlier;
+import spd.algorithms.Neh;
 import spd.algorithms.Schrage;
 import spd.algorithms.SchragePrmtS;
 import spd.algorithms.Witi;
+import spd.models.Task.TaskNehModel;
 import spd.models.Task.TaskRPQModel;
 import spd.models.Task.TaskRComparator;
 import spd.models.Task.TaskWitiModel;
@@ -16,8 +19,12 @@ import spd.models.Task.TaskWitiModel;
 public class TasksManager {
 	private List<TaskRPQModel> _tasksListRPQ;
 	private List<TaskWitiModel> _tasksListWiti;
+	private List<TaskNehModel> _tasksListNeh;
+	
 	private int _tasksCount;
 	private AlgorithmTypes _algorithmType;
+	
+	private Neh _nehAlgorithm;
 	
 	public TasksManager() {
 		reset();
@@ -40,6 +47,8 @@ public class TasksManager {
 				return getRPQTaskTime();
 			case WITI:
 				return getWitiTaskTime();
+			case NEH:
+				return getNehTaskTime();
 			default:
 				System.out.println("Don't forget to set algorithmType");
 				return 0;
@@ -82,8 +91,27 @@ public class TasksManager {
 		witiAlgorithm = null;
 	}
 	
+	public void sortByNeh() {
+		if (_nehAlgorithm == null) {
+			_nehAlgorithm = new Neh();
+		}
+		else {
+			_nehAlgorithm.dispose();
+		}
+		_nehAlgorithm.setData(_tasksListNeh);
+		_nehAlgorithm.calculate();
+	}
+	
+	private int getNehTaskTime() {
+		if (_nehAlgorithm != null) {
+			return _nehAlgorithm.getMinSpan();
+		}
+		else {
+			return 0;	
+		}
+	}
+	
 	private int getWitiTaskTime() {
-		
 		return 0;
 	}
 	
@@ -108,6 +136,9 @@ public class TasksManager {
 				break;
 			case WITI:
 				parseWitiData(list);
+				break;
+			case NEH:
+				parseNehData(list);
 				break;
 			default:
 				System.out.println("Don't forget to set algorithmType");
@@ -137,6 +168,25 @@ public class TasksManager {
 		}
 	}
 	
+	private void parseNehData(List<Integer> list) {
+		Iterator<Integer> listIterator = list.iterator();
+		_tasksCount = listIterator.next();
+		int machineCount = listIterator.next();
+		int index = 1;
+		TaskNehModel.MACHINES_COUNT = machineCount;
+		
+		for (int j = 0; j < _tasksCount; j++) {
+			Vector<Integer> executionTimes = new Vector<Integer>();
+			for (int i = 0; i < machineCount; i++) {
+				executionTimes.add(listIterator.next());
+			}
+			
+			TaskNehModel model = new TaskNehModel(index, executionTimes);
+			_tasksListNeh.add(model);
+			index++;
+		}
+	}
+	
 	private void reset() {
 		if (_tasksListRPQ != null) {
 			_tasksListRPQ.clear();
@@ -149,5 +199,11 @@ public class TasksManager {
 			_tasksListWiti = null;
 		}
 		_tasksListWiti = new ArrayList<TaskWitiModel>();
+		
+		if (_tasksListNeh != null) {
+			_tasksListNeh.clear();
+			_tasksListNeh = null;
+		}
+		_tasksListNeh = new ArrayList<TaskNehModel>();
 	}
 }
