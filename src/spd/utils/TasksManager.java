@@ -9,6 +9,7 @@ import java.util.Vector;
 import spd.algorithms.Carlier;
 import spd.algorithms.Neh;
 import spd.algorithms.Schrage;
+import spd.algorithms.SchrageOnVector;
 import spd.algorithms.SchragePrmtS;
 import spd.algorithms.Witi;
 import spd.models.Task.TaskNehModel;
@@ -61,6 +62,14 @@ public class TasksManager {
 	
 	public void sortBySchrage() {
 		Schrage schrageAlgorithm = new Schrage();
+		schrageAlgorithm.setData(_tasksListRPQ);
+		schrageAlgorithm.calculate();
+		schrageAlgorithm.dispose();
+		schrageAlgorithm = null;
+	}
+	
+	public void sortBySchrageOnVector() {
+		SchrageOnVector schrageAlgorithm = new SchrageOnVector();
 		schrageAlgorithm.setData(_tasksListRPQ);
 		schrageAlgorithm.calculate();
 		schrageAlgorithm.dispose();

@@ -9,6 +9,7 @@ import spd.utils.TasksManager;
 public class Main {
 	private final static String R_ALGORITHM = "R";
 	private final static String SCHRAGE_ALGORITHM = "SCHRAGE";
+	private final static String SCHRAGE_VECTOR_ALGORITHM = "SCHRAGE_VECTOR";
 	private final static String CARLIER_ALGORITHM = "CARLIER";
 	private final static String WITI_ALGORITHM = "WITI";
 	private final static String INSA_ALGORITHM = "INSA";
@@ -25,9 +26,13 @@ public class Main {
 		main.calculate(CARLIER_ALGORITHM, AlgorithmTypes.RPQ, true);
 		
 		main.calculate(WITI_ALGORITHM, AlgorithmTypes.WITI, true);
-		*/
+		
 		
 		main.calculate(NEH_ALGORITHM, AlgorithmTypes.NEH, true);
+		*/
+		main.calculate(CARLIER_ALGORITHM, AlgorithmTypes.RPQ, true);
+		main.calculate(SCHRAGE_ALGORITHM, AlgorithmTypes.RPQ, true);
+		main.calculate(SCHRAGE_VECTOR_ALGORITHM, AlgorithmTypes.RPQ, true);
 	}
 
 	
@@ -85,11 +90,12 @@ public class Main {
 		String algorithmResults = algorithmType + " algorithm:\n";
 		
 		int totalTime = 0;
+		long miliseconds = 0;
 		for (String fileName : list) {
 			_tasksManager.setDataFromFile(fileName);
-			calculateUsingAlgorithmType(algorithmType);
+			miliseconds = calculateUsingAlgorithmType(algorithmType);
 			totalTime += _tasksManager.getTasksTime();
-			algorithmResults += fileName + ": " + _tasksManager.getTasksTime() + "\n";
+			algorithmResults += fileName + ": " + _tasksManager.getTasksTime() + " in " + miliseconds + " miliseconds\n";
 		}
 		
 		algorithmResults += "total time: " + totalTime + "\n\n";
@@ -99,13 +105,17 @@ public class Main {
 		}
 	}
 	
-	private void calculateUsingAlgorithmType(String type) {
+	private long calculateUsingAlgorithmType(String type) {
+		long milisBefore = System.currentTimeMillis();
 		switch (type) {
 		case R_ALGORITHM:
 			_tasksManager.sortByR();
 			break;
 		case SCHRAGE_ALGORITHM:
 			_tasksManager.sortBySchrage();
+			break;
+		case SCHRAGE_VECTOR_ALGORITHM:
+			_tasksManager.sortBySchrageOnVector();
 			break;
 		case CARLIER_ALGORITHM:
 			_tasksManager.sortByCarlier();
@@ -123,6 +133,8 @@ public class Main {
 			System.out.println("Wrong algorithm type: " + type);
 			break;
 		}
+		
+		return System.currentTimeMillis() - milisBefore;
 	}
 
 }
