@@ -18,8 +18,8 @@ public class Witi implements IAlgorithm, Disposable {
 		_stepsAmount = (int) Math.pow(2, list.size()) - 1;
 		_permutationVector = new Vector<Permutation>();
 		_permutationVector.setSize(_stepsAmount);
-		for (int i = 0; i < _stepsAmount; i++) {
-			_permutationVector.add(i, new Permutation(0,0));
+		for (int i = 1; i <= _stepsAmount; i++) {
+			_permutationVector.add(i, new Permutation(0, 0, 0));
 		}
 	}
 	
@@ -31,11 +31,11 @@ public class Witi implements IAlgorithm, Disposable {
 		int power = 0;
 		int currentTime = 0;
 		int lastTaskIndex = 0;
+		int taskIndex = 0;
 		
 		for (int i = 1; i <= _stepsAmount; i++) {
 			combinationSeries = (int) (Math.log(i) / Math.log(2));
 			tardinessMin = Integer.MAX_VALUE;
-			System.out.println(combinationSeries);
 			for (int j = 0; j <= combinationSeries; j++) {
 				power = (int) Math.pow(2, j);
 				tardiness = 0;
@@ -43,44 +43,45 @@ public class Witi implements IAlgorithm, Disposable {
 				int isInside = i & power;
 				if (isInside > 0) {
 					if (i - power > 0) {
-						tardiness += _permutationVector.get(i - power - 1).getTardiness();
+						tardiness += _permutationVector.get(i - power).getTardiness();
 					}
-					tardiness += calculateTardiness(j, currentTime);
+					tardiness += calculateTardiness(j, currentTime) * _list.get(j).getWeight();
 					if (tardinessMin > tardiness) {
 						tardinessMin = tardiness;
-						lastTaskIndex = power;
+						lastTaskIndex = i - power;
+						taskIndex = j;
 					}
 				}
 			}
 			
-			_permutationVector.get(i - 1).setTardiness(tardinessMin);
-			_permutationVector.get(i - 1).setLastTaskIndex(lastTaskIndex);
+			_permutationVector.get(i).setTardiness(tardinessMin);
+			_permutationVector.get(i).setLastTaskIndex(lastTaskIndex);
+			_permutationVector.get(i).setTaskIndex(taskIndex);
 		}
 		
-		sortList(lastTaskIndex);
+		printResult(tardinessMin);
 		
 		return 0;
 	}
 	
-	private void sortList(int lastTaskIndex) {
-		int step = _stepsAmount + 1;
-		int taskIndex = 0;
-		Vector<Integer> kolejnosc = new Vector<Integer>();
-		kolejnosc.setSize(_list.size());
-		for (int i = _list.size(); i > 0; i--) {
-			taskIndex = _permutationVector.get(step - 2).getLastTaskIndex();
-			kolejnosc.set(i - 1, (int) (Math.log(taskIndex) / Math.log(2) + 1));
-			step = step - taskIndex;
+	private void printResult(int tardinessMin) {
+		System.out.println("Optimum " + tardinessMin);
+		int lastIndex = _stepsAmount;
+		int resultArray[] = new int[_list.size()];
+		
+		for (int z = _list.size(); z > 0; z--) {
+			resultArray[z - 1] = _permutationVector.get(lastIndex).getTaskIndex() + 1; 
+			lastIndex = _permutationVector.get(lastIndex).getLastTaskIndex();
 		}
 		
-		for (Integer value : kolejnosc) {
-	        System.out.print(value + " ");
+		for (int i = 0; i < resultArray.length; i++) {
+			System.out.print(resultArray[i] + " ");
 		}
 		System.out.print("\n");
 	}
 	
 	private int calculateTardiness(int taskIndex, int currentTime) {
-		return Math.max(0, currentTime - _list.get(taskIndex).getDeadlineTime()) * _list.get(taskIndex).getWeight();
+		return Math.max(0, currentTime - _list.get(taskIndex).getDeadlineTime());
 	}
 	
 	private int countTime(int index) {
@@ -113,10 +114,12 @@ public class Witi implements IAlgorithm, Disposable {
 class Permutation {
 	private int _tardiness;
 	private int _lastTaskIndex;
+	private int _taskIndex;
 	
-	public Permutation(int tardiness, int lastTaskIndex) {
+	public Permutation(int tardiness, int lastTaskIndex, int taskIndex) {
 		_tardiness = tardiness;
 		_lastTaskIndex = lastTaskIndex;
+		_taskIndex = taskIndex;
 	}
 	
 	public int getTardiness() {
@@ -133,5 +136,13 @@ class Permutation {
 	
 	public void setLastTaskIndex(int value) {
 		_lastTaskIndex = value;
+	}
+	
+	public int getTaskIndex() {
+		return _taskIndex;
+	}
+	
+	public void setTaskIndex(int value) {
+		_taskIndex = value;
 	}
 }

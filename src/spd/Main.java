@@ -24,15 +24,17 @@ public class Main {
 		main.calculate(R_ALGORITHM, AlgorithmTypes.RPQ, true);
 		main.calculate(SCHRAGE_ALGORITHM, AlgorithmTypes.RPQ, true);
 		main.calculate(CARLIER_ALGORITHM, AlgorithmTypes.RPQ, true);
-		
+		*/
 		main.calculate(WITI_ALGORITHM, AlgorithmTypes.WITI, true);
 		
 		
-		main.calculate(NEH_ALGORITHM, AlgorithmTypes.NEH, true);
-		*/
+		//main.calculate(NEH_ALGORITHM, AlgorithmTypes.NEH, true);
+		
+		/*
 		main.calculate(CARLIER_ALGORITHM, AlgorithmTypes.RPQ, true);
 		main.calculate(SCHRAGE_ALGORITHM, AlgorithmTypes.RPQ, true);
 		main.calculate(SCHRAGE_VECTOR_ALGORITHM, AlgorithmTypes.RPQ, true);
+		*/
 	}
 
 	
@@ -47,8 +49,9 @@ public class Main {
 			list.add("data/in200.txt");
 			break;
 		case WITI:
+			//list.add("data/witi/data3.txt");
 			list.add("data/witi/data10.txt");
-			/*list.add("data/witi/data11.txt");
+			list.add("data/witi/data11.txt");
 			list.add("data/witi/data12.txt");
 			list.add("data/witi/data13.txt");
 			list.add("data/witi/data14.txt");
@@ -57,7 +60,7 @@ public class Main {
 			list.add("data/witi/data17.txt");
 			list.add("data/witi/data18.txt");
 			list.add("data/witi/data19.txt");
-			list.add("data/witi/data20.txt");*/
+			list.add("data/witi/data20.txt");
 			break;
 		case INSA:
 			
