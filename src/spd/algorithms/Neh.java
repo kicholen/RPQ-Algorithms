@@ -12,12 +12,14 @@ import spd.models.Task.TaskNehModel;
 public class Neh implements IAlgorithm, Disposable {
 	private PriorityQueue<TaskNehModel> _queue;
 	private int _minSpan;
-
+	public static int MACHINES_COUNT;
+	
 	public void setData(List<TaskNehModel> list) {
 		_queue = new PriorityQueue<TaskNehModel>(list.size(), new TaskNehComparator());
 		for (TaskNehModel model : list) {
 			_queue.add(model);
 		}
+		MACHINES_COUNT = list.get(0).getMachineCount();
 	}
 	
 	// http://www.ijceronline.com/papers/Vol2_issue6/R0260950100.pdf - neh
@@ -28,9 +30,7 @@ public class Neh implements IAlgorithm, Disposable {
 		Vector<TaskNehModel> mehVector = new Vector<TaskNehModel>();
 		mehVector.add(_queue.poll());
 		mehVector.add(_queue.poll());
-		Vector<TaskNehModel> copiedVector = copyVector(mehVector);
-
-		if (makeSpan(copyVector(mehVector)) > makeSpan(swap(copiedVector, 0, 1))) {
+		if (makeSpan(copyVector(mehVector)) > makeSpan(swap(copyVector(mehVector), 0, 1))) {
 			swap(mehVector, 0, 1);
 		}
 		
@@ -49,11 +49,20 @@ public class Neh implements IAlgorithm, Disposable {
             mehVector = minSpanVector;
         }
 		
+		printResult(mehVector);
+		
 		return _minSpan;
 	}
 	
 	public int getMinSpan() {
 		return _minSpan;
+	}
+	
+	public void printResult(Vector<TaskNehModel> mehVector) {
+		for (TaskNehModel model : mehVector) {
+			System.out.print(model.getIndex() + " ");
+		}
+		System.out.println("||");
 	}
 	
 	private Vector<TaskNehModel> swap(Vector<TaskNehModel> vector, int i, int j) {
@@ -73,7 +82,7 @@ public class Neh implements IAlgorithm, Disposable {
 			}
 			i++;
 		}
-		return vector.get(vector.size() - 1).getExecutionTime(TaskNehModel.MACHINES_COUNT - 1);
+		return vector.get(vector.size() - 1).getExecutionTime(MACHINES_COUNT - 1);
 	}
 
 	private Vector<TaskNehModel> copyVector(Vector<TaskNehModel> vector) {

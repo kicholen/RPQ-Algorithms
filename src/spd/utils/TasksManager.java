@@ -182,14 +182,12 @@ public class TasksManager {
 		_tasksCount = listIterator.next();
 		int machineCount = listIterator.next();
 		int index = 1;
-		TaskNehModel.MACHINES_COUNT = machineCount;
 		
 		for (int j = 0; j < _tasksCount; j++) {
 			Vector<Integer> executionTimes = new Vector<Integer>();
 			for (int i = 0; i < machineCount; i++) {
 				executionTimes.add(listIterator.next());
 			}
-			
 			TaskNehModel model = new TaskNehModel(index, executionTimes);
 			_tasksListNeh.add(model);
 			index++;

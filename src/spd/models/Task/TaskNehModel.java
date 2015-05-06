@@ -5,7 +5,7 @@ import java.util.Vector;
 import spd.models.Copyable;
 
 public class TaskNehModel implements Copyable<TaskNehModel> {
-	public static int MACHINES_COUNT;
+	private int _machineCount;
 	private Vector<Integer> _executionTimes;
 	private int _index;
 	
@@ -41,6 +41,10 @@ public class TaskNehModel implements Copyable<TaskNehModel> {
 	
 	public void setExecutionTime(int index, int value) {
 		_executionTimes.set(index, value);
+	}
+	
+	public int getMachineCount() {
+		return _executionTimes.size();
 	}
 	
 	@Override

@@ -24,11 +24,11 @@ public class Main {
 		main.calculate(R_ALGORITHM, AlgorithmTypes.RPQ, true);
 		main.calculate(SCHRAGE_ALGORITHM, AlgorithmTypes.RPQ, true);
 		main.calculate(CARLIER_ALGORITHM, AlgorithmTypes.RPQ, true);
-		*/
+		
 		main.calculate(WITI_ALGORITHM, AlgorithmTypes.WITI, true);
+		*/
 		
-		
-		//main.calculate(NEH_ALGORITHM, AlgorithmTypes.NEH, true);
+		main.calculate(NEH_ALGORITHM, AlgorithmTypes.NEH, true);
 		
 		/*
 		main.calculate(CARLIER_ALGORITHM, AlgorithmTypes.RPQ, true);
@@ -69,7 +69,6 @@ public class Main {
 			for (int i = 1; i <= 10; i++) {
 				list.add(getFormattedNehString(i));
 			}
-			
 			break;
 		}
 		calculate(list, algorithmType, shouldPrintResult);
